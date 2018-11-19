@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/html"
 	"log"
 	"os"
+	"strings"
 )
 
 func main(){
@@ -20,26 +21,40 @@ func main(){
 	if err != nil {
 		log.Fatal(err)
 	}
-	extractLink(doc)
-	fmt.Printf("%+v", links)
+
+	var links []link
+
+	extractLink(doc, &links)
+	fmt.Printf("%+v\n", links)
 }
-var links []link
-func extractLink(n *html.Node) {
+
+func extractLink(n *html.Node, links *[]link) {
 	if n.Type == html.ElementNode && n.Data == "a" {
 		var l link
 		for _, a := range n.Attr {
 			if a.Key == "href" {
 				l.href = a.Val
-				l.text = n.FirstChild.Data
-				links = append(links, l)
+				extractText(n, &l)
+				*links = append(*links, l)
 				break
 			}
 		}
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		extractLink(c)
+		extractLink(c, links)
 	}
 }
+
+func extractText(n *html.Node, l *link) {
+	if n.Type == html.TextNode {
+		l.text += strings.TrimSpace(n.Data) // TODO: append to list (needs to be passed in instead of l *link) and then concatenate at the end
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		extractText(c, l)
+	}
+	l.text = strings.TrimSpace(l.text)
+}
+
 type link struct {
 	href string
 	text string
