@@ -31,10 +31,12 @@ func main(){
 func extractLink(n *html.Node, links *[]link) {
 	if n.Type == html.ElementNode && n.Data == "a" {
 		var l link
+		var t []string
 		for _, a := range n.Attr {
 			if a.Key == "href" {
 				l.href = a.Val
-				extractText(n, &l)
+				extractText(n, &t)
+				l.text = strings.Join(t, " ")
 				*links = append(*links, l)
 				break
 			}
@@ -45,14 +47,13 @@ func extractLink(n *html.Node, links *[]link) {
 	}
 }
 
-func extractText(n *html.Node, l *link) {
+func extractText(n *html.Node, t *[]string) {
 	if n.Type == html.TextNode {
-		l.text += strings.TrimSpace(n.Data) // TODO: append to list (needs to be passed in instead of l *link) and then concatenate at the end
+		*t = append(*t, strings.TrimSpace(n.Data))
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		extractText(c, l)
+		extractText(c, t)
 	}
-	l.text = strings.TrimSpace(l.text)
 }
 
 type link struct {
