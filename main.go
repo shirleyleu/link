@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"golang.org/x/net/html"
 	"log"
 	"os"
@@ -10,7 +9,7 @@ import (
 )
 
 func main(){
-	filename := flag.String("file", "ex1.html", "html file")
+	filename := flag.String("file", "ex1.html", "name of html file to parse")
 	flag.Parse()
 
 	d, err := os.Open(*filename)
@@ -23,9 +22,7 @@ func main(){
 	}
 
 	var links []link
-
 	extractLink(doc, &links)
-	fmt.Printf("%+v\n", links)
 }
 
 func extractLink(n *html.Node, links *[]link) {
@@ -49,7 +46,10 @@ func extractLink(n *html.Node, links *[]link) {
 
 func extractText(n *html.Node, t *[]string) {
 	if n.Type == html.TextNode {
-		*t = append(*t, strings.TrimSpace(n.Data))
+		d := strings.TrimSpace(n.Data)
+		if d != "" {
+			*t = append(*t, d)
+		}
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		extractText(c, t)
