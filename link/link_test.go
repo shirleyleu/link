@@ -1,4 +1,4 @@
-package main
+package link
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -13,17 +13,17 @@ func Test_extractLink(t *testing.T) {
 	tests := []struct {
 		name string
 		file string
-		want []link
+		want []Link
 	}{
 		{
 			name: "Single link ex1",
 			file: "ex1.html",
-			want: []link{{href:"/other-page", text:"A link to another page"}},
+			want: []Link{{href:"/other-page", text:"A link to another page"}},
 		},
 		{
 			name: "Multiple links ex2",
 			file: "ex2.html",
-			want: []link{{href:"https://www.twitter.com/joncalhoun", text:"Check me out on twitter"},{href:"https://github.com/gophercises", text: "Gophercises is on Github !"}},
+			want: []Link{{href:"https://www.twitter.com/joncalhoun", text:"Check me out on twitter"},{href:"https://github.com/gophercises", text: "Gophercises is on Github !"}},
 		},
 
 	}
@@ -33,15 +33,15 @@ func Test_extractLink(t *testing.T) {
 			require.NoError(t, err)
 			doc, err := html.Parse(d)
 			require.NoError(t, err)
-			var links []link
-			extractLink(doc, &links)
+			var links []Link
+			ExtractLink(doc, &links)
 			assert.Equal(t, tt.want, links)
 		})
 	}
 }
 
 func Test_full_document_ex3(t *testing.T) {
-	want:= []link{
+	want:= []Link{
 		{href:"#", text:"Login"},
 		{href:"/lost", text:"Lost? Need help?"},
 		{href:"https://twitter.com/marcusolsson", text:"@marcusolsson"},
@@ -50,41 +50,41 @@ func Test_full_document_ex3(t *testing.T) {
 	require.NoError(t, err)
 	doc, err := html.Parse(d)
 	require.NoError(t, err)
-	var links []link
-	extractLink(doc, &links)
+	var links []Link
+	ExtractLink(doc, &links)
 	assert.Equal(t, want, links)
 }
 
 
 func Test_commented_text_should_not_be_included_ex4(t *testing.T) {
-	want:= []link{{href:"/dog-cat", text:"dog cat"}}
+	want:= []Link{{href:"/dog-cat", text:"dog cat"}}
 	d, err := os.Open("ex4.html")
 	require.NoError(t, err)
 	doc, err := html.Parse(d)
 	require.NoError(t, err)
-	var links []link
-	extractLink(doc, &links)
+	var links []Link
+	ExtractLink(doc, &links)
 	assert.Equal(t, want, links)
 }
 
 func Test_multiple_text_tags_ex5(t *testing.T) {
-	want:= []link{{href:"/dog", text:"Something in a span Text not in a span Bold text!"}}
+	want:= []Link{{href:"/dog", text:"Something in a span Text not in a span Bold text!"}}
 	d, err := os.Open("ex5.html")
 	require.NoError(t, err)
 	doc, err := html.Parse(d)
 	require.NoError(t, err)
-	var links []link
-	extractLink(doc, &links)
+	var links []Link
+	ExtractLink(doc, &links)
 	assert.Equal(t, want, links)
 }
 
 func Test_Deeper_Link_ex6(t *testing.T) {
-	want:= []link{{href:"/dog", text:"Something in a span Text not in a span Bold Stuff more Mountain text!"}}
+	want:= []Link{{href:"/dog", text:"Something in a span Text not in a span Bold Stuff more Mountain text!"}}
 	d, err := os.Open("ex6.html")
 	require.NoError(t, err)
 	doc, err := html.Parse(d)
 	require.NoError(t, err)
-	var links []link
-	extractLink(doc, &links)
+	var links []Link
+	ExtractLink(doc, &links)
 	assert.Equal(t, want, links)
 }
